@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanbolin.mapper.ZhiwuMapper">
+	
+	<!-- 查询 -->
+	<select id="getList" resultMap="zt" parameterType="ZhiwuVo">
+		select z.*,t.tname from zhiwu z join type t on z.tid=t.tid
+		<where>
+			<if test="zname!=null and zname!=''">
+				and z.zname like "%${zname}%"
+			</if>
+		</where>
+	</select>
+	
+	<!-- 实现查询方法 -->
+	<select id="getType" resultType="type">
+		select * from type;
+	</select>
+	
+	<!-- 实现添加方法 -->
+	<insert id="addZhiwu" parameterType="Zhiwu">
+		insert into zhiwu(zname,introduction,tid) values(#{zname},#{introduction},#{type.tid});
+	</insert>
+	
+	<!-- 实现删除方法 -->
+	<delete id="dele" parameterType="ZhiwuVo">
+		delete from zhiwu 
+		<where>
+			<if test="zid!=null and zid!=''">
+				<foreach collection="zid" item="zid" open="zid in(" close=")" separator=",">
+					#{zid}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+	
+	<!-- 关联 -->
+	<resultMap type="Zhiwu" id="zt">
+		<id column="zid" property="zid"/>
+		<result column="zname" property="zname"/>
+		<result column="introduction" property="introduction"/>
+		
+		<association property="type" javaType="Type">
+			<id column="tid" property="tid"/>
+			<result column="tname" property="tname"/>
+		</association>
+	</resultMap>
+	
+	<!-- 实现修改查询方法 -->
+	<select id="updateById" resultMap="zt" parameterType="int">
+		select * from zhiwu where zid=#{zid};
+	</select>
+	
+	<!-- 实现修改方法 -->
+	<update id="update" parameterType="Zhiwu">
+		update zhiwu set zname=#{zname},introduction=#{introduction},tid=#{type.tid} where zid=#{zid}
+	</update>
+	
+	<!-- 实现查看方法 -->
+	<select id="chakanById" resultMap="zt" parameterType="int">
+		select z.*,t.tname from zhiwu z join type t on z.tid=t.tid where z.zid=#{zid}
+	</select>
+	
+	<!-- 实现查看类别方法 -->
+	<select id="chakanType" resultMap="zt" parameterType="Type">
+		select z.*,t.tname from zhiwu z join type t on z.tid=t.tid where t.tid=#{tid}
+	</select>
+</mapper>
